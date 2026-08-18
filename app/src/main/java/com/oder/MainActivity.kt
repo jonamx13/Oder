@@ -1,4 +1,4 @@
-package com.example.oder
+package com.oder
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -10,8 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.oder.ui.theme.OderTheme
+import com.oder.core.theme.OderTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,10 +19,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             OderTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    OderRoot(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
@@ -31,17 +27,9 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
+fun OderRoot(modifier: Modifier = Modifier) {
     Text(
-        text = "Hello $name!",
+        text = "Oder Engine Initialized",
         modifier = modifier
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    OderTheme {
-        Greeting("Android")
-    }
 }
