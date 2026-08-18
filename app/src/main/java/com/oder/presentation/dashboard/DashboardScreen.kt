@@ -6,8 +6,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,7 +15,6 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,12 +23,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,6 +52,7 @@ import com.oder.core.theme.DarkBorder
 import com.oder.core.theme.DarkSurface
 import com.oder.core.theme.DarkSurfaceElevated
 import com.oder.core.theme.DarkSurfaceVariant
+import com.oder.core.theme.NounFeminine
 import com.oder.core.theme.NounMasculine
 import com.oder.core.theme.NounNeuter
 import com.oder.core.theme.OderTypography
@@ -64,7 +65,7 @@ import com.oder.core.theme.TextTertiary
 fun DashboardScreen(
     onNavigateToReview: (language: String) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: DashboardViewModel = viewModel()
+    viewModel: DashboardViewModel = viewModel(factory = DashboardViewModel.Factory(LocalContext.current))
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -73,40 +74,66 @@ fun DashboardScreen(
             .fillMaxSize()
             .background(OledBlack)
     ) {
-        // --- Top Bar with AnimatedContent Language Switcher ---
-        DashboardTopBar(
+        // --- Custom Flag-Based Language Switcher Top Bar ---
+        CustomLanguageTopBar(
             selectedLanguage = uiState.selectedLanguage,
             onSelectLanguage = { viewModel.selectLanguage(it) }
         )
 
-        // --- Main Content Grid ---
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 320.dp),
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Hero Status Section
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                HeroStatusCard(
-                    uiState = uiState,
-                    onStartReview = { onNavigateToReview(uiState.selectedLanguage.code) }
+        // --- Main Screen Body ---
+        AnimatedContent(
+            targetState = uiState.selectedLanguage,
+            transitionSpec = {
+                fadeIn(
+                    animationSpec = spring(
+                        stiffness = Spring.StiffnessLow,
+                        dampingRatio = Spring.DampingRatioMediumBouncy
+                    )
+                ) togetherWith fadeOut(
+                    animationSpec = spring(
+                        stiffness = Spring.StiffnessLow,
+                        dampingRatio = Spring.DampingRatioMediumBouncy
+                    )
                 )
-            }
+            },
+            label = "language_content_crossfade",
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(1f)
+        ) { language ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 24.dp, vertical = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Header Area
+                LanguageHeaderSection(
+                    language = language,
+                    totalVocab = uiState.totalVocabulary
+                )
 
-            // Grammar Matrices Header
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                GrammarMatricesHeader()
-            }
+                Spacer(modifier = Modifier.height(28.dp))
 
-            // Grammar Matrix Cards
-            items(uiState.matrices, key = { it.id }) { matrixItem ->
-                GrammarMatrixCard(matrixItem = matrixItem)
-            }
+                // Massive, Elegant 'Start Daily Session' Center Button
+                StartDailySessionButton(
+                    dueCardsCount = uiState.dueCardsCount,
+                    onClick = { onNavigateToReview(language) },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-            // Bottom Spacing
-            item(span = { GridItemSpan(maxLineSpan) }) {
+                Spacer(modifier = Modifier.height(36.dp))
+
+                // Sleek Minimalist Grammar Mastery Section
+                GrammarMasterySection(
+                    nounMastery = uiState.nounMastery,
+                    verbMastery = uiState.verbMastery,
+                    caseMastery = uiState.caseMastery,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
@@ -114,14 +141,14 @@ fun DashboardScreen(
 }
 
 @Composable
-private fun DashboardTopBar(
-    selectedLanguage: AppLanguage,
-    onSelectLanguage: (AppLanguage) -> Unit
+private fun CustomLanguageTopBar(
+    selectedLanguage: String,
+    onSelectLanguage: (String) -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 16.dp),
+            .padding(horizontal = 24.dp, vertical = 20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -129,45 +156,47 @@ private fun DashboardTopBar(
             Text(
                 text = "ODER",
                 style = OderTypography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 2.sp
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 3.sp,
+                    fontSize = 22.sp
                 ),
                 color = TextPrimary
             )
             Text(
-                text = "Language Mastery",
-                style = OderTypography.labelSmall,
+                text = "Language Engine",
+                style = OderTypography.labelSmall.copy(letterSpacing = 1.sp),
                 color = TextTertiary
             )
         }
 
-        // Language Switcher Pill
+        // Circular Flag Icons Switcher
         Row(
-            modifier = Modifier
-                .clip(RoundedCornerShape(24.dp))
-                .background(DarkSurfaceVariant)
-                .border(1.dp, DarkBorder, RoundedCornerShape(24.dp))
-                .padding(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            LanguageTabPill(
-                language = AppLanguage.GERMAN,
-                isSelected = selectedLanguage == AppLanguage.GERMAN,
-                onClick = { onSelectLanguage(AppLanguage.GERMAN) }
+            CircularFlagButton(
+                flagEmoji = "🇩🇪",
+                languageCode = "de",
+                label = "German",
+                isSelected = selectedLanguage == "de",
+                onClick = { onSelectLanguage("de") }
             )
-            Spacer(modifier = Modifier.width(4.dp))
-            LanguageTabPill(
-                language = AppLanguage.POLISH,
-                isSelected = selectedLanguage == AppLanguage.POLISH,
-                onClick = { onSelectLanguage(AppLanguage.POLISH) }
+            CircularFlagButton(
+                flagEmoji = "🇵🇱",
+                languageCode = "pl",
+                label = "Polish",
+                isSelected = selectedLanguage == "pl",
+                onClick = { onSelectLanguage("pl") }
             )
         }
     }
 }
 
 @Composable
-private fun LanguageTabPill(
-    language: AppLanguage,
+private fun CircularFlagButton(
+    flagEmoji: String,
+    languageCode: String,
+    label: String,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
@@ -175,279 +204,167 @@ private fun LanguageTabPill(
     val isPressed by interactionSource.collectIsPressedAsState()
 
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.94f else 1f,
+        targetValue = if (isPressed) 0.90f else if (isSelected) 1.05f else 1f,
         animationSpec = spring(
             stiffness = Spring.StiffnessLow,
             dampingRatio = Spring.DampingRatioMediumBouncy
         ),
-        label = "language_pill_press"
+        label = "flag_button_scale"
     )
-
-    val backgroundAnim = if (isSelected) DarkSurfaceElevated else Color.Transparent
-    val borderModifier = if (isSelected) Modifier.border(1.dp, DarkBorder, RoundedCornerShape(20.dp)) else Modifier
 
     Box(
         modifier = Modifier
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .size(46.dp)
+            .clip(CircleShape)
+            .background(if (isSelected) DarkSurfaceElevated else DarkSurface)
+            .border(
+                width = if (isSelected) 2.dp else 1.dp,
+                color = if (isSelected) NounMasculine else DarkBorder,
+                shape = CircleShape
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = flagEmoji,
+            fontSize = 20.sp
+        )
+    }
+}
+
+@Composable
+private fun LanguageHeaderSection(
+    language: String,
+    totalVocab: Int
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.Start
+    ) {
+        val title = if (language == "de") "Deutsch B2" else "Polski B2"
+        val subtitle = if (language == "de") "Kasus, Rektion & Präpositionen" else "Aspekt, Deklinacja & Przypadki"
+
+        Text(
+            text = title,
+            style = OderTypography.displayMedium.copy(fontWeight = FontWeight.Bold),
+            color = TextPrimary
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = subtitle,
+            style = OderTypography.bodyMedium,
+            color = TextSecondary
+        )
+    }
+}
+
+@Composable
+private fun StartDailySessionButton(
+    dueCardsCount: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val isEnabled = dueCardsCount > 0
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed && isEnabled) 0.96f else 1f,
+        animationSpec = spring(
+            stiffness = Spring.StiffnessLow,
+            dampingRatio = Spring.DampingRatioMediumBouncy
+        ),
+        label = "main_session_btn_scale"
+    )
+
+    Box(
+        modifier = modifier
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
             }
             .clip(RoundedCornerShape(20.dp))
-            .background(backgroundAnim)
-            .then(borderModifier)
+            .background(if (isEnabled) TextPrimary else DarkSurfaceElevated)
+            .border(
+                width = 1.dp,
+                color = if (isEnabled) TextPrimary else DarkBorder,
+                shape = RoundedCornerShape(20.dp)
+            )
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
+                enabled = isEnabled,
                 onClick = onClick
             )
-            .padding(horizontal = 14.dp, vertical = 6.dp),
+            .padding(vertical = 32.dp, horizontal = 24.dp),
         contentAlignment = Alignment.Center
     ) {
-        AnimatedContent(
-            targetState = isSelected,
-            transitionSpec = {
-                (fadeIn(spring(stiffness = Spring.StiffnessLow, dampingRatio = Spring.DampingRatioMediumBouncy)) +
-                    scaleIn(initialScale = 0.9f, animationSpec = spring(stiffness = Spring.StiffnessLow, dampingRatio = Spring.DampingRatioMediumBouncy)))
-                    .togetherWith(
-                        fadeOut(spring(stiffness = Spring.StiffnessLow, dampingRatio = Spring.DampingRatioMediumBouncy)) +
-                            scaleOut(targetScale = 0.9f, animationSpec = spring(stiffness = Spring.StiffnessLow, dampingRatio = Spring.DampingRatioMediumBouncy))
-                    )
-            },
-            label = "tab_label_anim"
-        ) { selected ->
-            Text(
-                text = language.badge,
-                style = OderTypography.labelLarge.copy(
-                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
-                ),
-                color = if (selected) TextPrimary else TextTertiary
-            )
-        }
-    }
-}
-
-@Composable
-private fun HeroStatusCard(
-    uiState: DashboardUiState,
-    onStartReview: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(DarkSurface)
-            .border(1.dp, DarkBorder, RoundedCornerShape(16.dp))
-            .padding(20.dp)
-    ) {
-        AnimatedContent(
-            targetState = uiState.selectedLanguage,
-            transitionSpec = {
-                fadeIn(spring(stiffness = Spring.StiffnessLow, dampingRatio = Spring.DampingRatioMediumBouncy))
-                    .togetherWith(fadeOut(spring(stiffness = Spring.StiffnessLow, dampingRatio = Spring.DampingRatioMediumBouncy)))
-            },
-            label = "hero_language_text"
-        ) { language ->
-            Column {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .clip(CircleShape)
-                            .background(AccentSuccess)
-                    )
-                    Text(
-                        text = language.displayName.uppercase(),
-                        style = OderTypography.labelMedium.copy(letterSpacing = 1.5.sp),
-                        color = NounMasculine
-                    )
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = language.subtitle,
-                    style = OderTypography.headlineMedium,
-                    color = TextPrimary
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(18.dp))
-
-        // Practice status metrics
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            StatusMetricBox(
-                label = "Ready for Review",
-                value = "${uiState.dueCardsCount}",
-                modifier = Modifier.weight(1f),
-                accentColor = TextPrimary
-            )
-            StatusMetricBox(
-                label = "Total Vocabulary",
-                value = "${uiState.totalLexemes}",
-                modifier = Modifier.weight(1f),
-                accentColor = TextSecondary
-            )
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Large Tactile CTA Button
-        StartTrainingButton(
-            dueCount = uiState.dueCardsCount,
-            onClick = onStartReview
-        )
-    }
-}
-
-@Composable
-private fun StatusMetricBox(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier,
-    accentColor: Color = TextPrimary
-) {
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(DarkSurfaceVariant)
-            .border(1.dp, DarkBorder, RoundedCornerShape(12.dp))
-            .padding(14.dp)
-    ) {
-        Text(
-            text = value,
-            style = OderTypography.displaySmall.copy(fontWeight = FontWeight.Bold),
-            color = accentColor
-        )
-        Spacer(modifier = Modifier.height(2.dp))
-        Text(
-            text = label,
-            style = OderTypography.bodySmall,
-            color = TextTertiary
-        )
-    }
-}
-
-@Composable
-private fun StartTrainingButton(
-    dueCount: Int,
-    onClick: () -> Unit
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.97f else 1f,
-        animationSpec = spring(
-            stiffness = Spring.StiffnessLow,
-            dampingRatio = Spring.DampingRatioMediumBouncy
-        ),
-        label = "cta_press_scale"
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
-            .clip(RoundedCornerShape(12.dp))
-            .background(TextPrimary)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick
-            )
-            .padding(vertical = 16.dp, horizontal = 24.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Start Daily Practice",
-                style = OderTypography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                ),
-                color = OledBlack
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(OledBlack)
-                    .padding(horizontal = 8.dp, vertical = 2.dp)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "$dueCount",
-                    style = OderTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                    color = TextPrimary
+                    text = if (isEnabled) "Start Daily Session" else "All Caught Up",
+                    style = OderTypography.headlineMedium.copy(
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 22.sp,
+                        letterSpacing = 0.5.sp
+                    ),
+                    color = if (isEnabled) OledBlack else TextSecondary
                 )
+
+                if (isEnabled) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = null,
+                        tint = OledBlack,
+                        modifier = Modifier.size(22.dp)
+                    )
+                } else {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = null,
+                        tint = AccentSuccess,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = if (isEnabled) "$dueCardsCount words ready for review" else "No reviews due right now",
+                style = OderTypography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                color = if (isEnabled) Color(0xFF404040) else TextTertiary
+            )
         }
     }
 }
 
 @Composable
-private fun GrammarMatricesHeader() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp)
-    ) {
-        Text(
-            text = "Grammar Topics",
-            style = OderTypography.titleLarge,
-            color = TextPrimary
-        )
-        Spacer(modifier = Modifier.height(2.dp))
-        Text(
-            text = "Practice key sentence structures and inflection patterns",
-            style = OderTypography.bodySmall,
-            color = TextTertiary
-        )
-    }
-}
-
-@Composable
-private fun GrammarMatrixCard(
-    matrixItem: GrammarMatrixItem
+private fun GrammarMasterySection(
+    nounMastery: GrammarCategoryMastery,
+    verbMastery: GrammarCategoryMastery,
+    caseMastery: GrammarCategoryMastery,
+    modifier: Modifier = Modifier
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.98f else 1f,
-        animationSpec = spring(
-            stiffness = Spring.StiffnessLow,
-            dampingRatio = Spring.DampingRatioMediumBouncy
-        ),
-        label = "matrix_card_scale"
-    )
-
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
-            .clip(RoundedCornerShape(14.dp))
-            .background(DarkSurface)
-            .border(1.dp, DarkBorder, RoundedCornerShape(14.dp))
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = {}
-            )
-            .padding(16.dp)
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -455,55 +372,98 @@ private fun GrammarMatrixCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = matrixItem.title,
-                style = OderTypography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = TextPrimary,
-                modifier = Modifier.weight(1f)
+                text = "Grammar Mastery",
+                style = OderTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = TextPrimary
             )
             Text(
-                text = "${(matrixItem.masteryRate * 100).toInt()}%",
-                style = OderTypography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                color = if (matrixItem.masteryRate >= 0.7f) NounNeuter else TextSecondary
-            )
-        }
-
-        Spacer(modifier = Modifier.height(6.dp))
-
-        Text(
-            text = matrixItem.caseOrTopic,
-            style = OderTypography.bodySmall,
-            color = TextSecondary,
-            maxLines = 1
-        )
-
-        Spacer(modifier = Modifier.height(14.dp))
-
-        LinearProgressIndicator(
-            progress = { matrixItem.masteryRate },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(6.dp)
-                .clip(RoundedCornerShape(3.dp)),
-            color = if (matrixItem.masteryRate >= 0.7f) NounNeuter else NounMasculine,
-            trackColor = DarkSurfaceVariant
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "${matrixItem.activeRules} of ${matrixItem.totalRules} rules learned",
+                text = "Live Progress",
                 style = OderTypography.labelSmall,
                 color = TextTertiary
             )
+        }
+
+        // Sleek Linear Progress Rows (0 - 100%)
+        GrammarProgressRow(
+            title = nounMastery.categoryName,
+            description = nounMastery.description,
+            progress = nounMastery.progress,
+            barColor = NounMasculine
+        )
+
+        GrammarProgressRow(
+            title = verbMastery.categoryName,
+            description = verbMastery.description,
+            progress = verbMastery.progress,
+            barColor = NounNeuter
+        )
+
+        GrammarProgressRow(
+            title = caseMastery.categoryName,
+            description = caseMastery.description,
+            progress = caseMastery.progress,
+            barColor = NounFeminine
+        )
+    }
+}
+
+@Composable
+private fun GrammarProgressRow(
+    title: String,
+    description: String,
+    progress: Float,
+    barColor: Color
+) {
+    val animatedProgress by animateFloatAsState(
+        targetValue = progress,
+        animationSpec = spring(
+            stiffness = Spring.StiffnessLow,
+            dampingRatio = Spring.DampingRatioMediumBouncy
+        ),
+        label = "grammar_progress_anim"
+    )
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Bottom
+        ) {
+            Column {
+                Text(
+                    text = title,
+                    style = OderTypography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                    color = TextPrimary
+                )
+                Text(
+                    text = description,
+                    style = OderTypography.bodySmall,
+                    color = TextTertiary
+                )
+            }
+
             Text(
-                text = if (matrixItem.masteryRate >= 0.75f) "Mastered" else "In Progress",
-                style = OderTypography.labelSmall,
-                color = if (matrixItem.masteryRate >= 0.75f) AccentSuccess else TextTertiary
+                text = "${(progress * 100).toInt()}%",
+                style = OderTypography.labelLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp
+                ),
+                color = TextSecondary
             )
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        LinearProgressIndicator(
+            progress = { animatedProgress },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(4.dp)
+                .clip(RoundedCornerShape(2.dp)),
+            color = barColor,
+            trackColor = DarkSurfaceVariant
+        )
     }
 }
