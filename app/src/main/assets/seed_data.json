@@ -1,42 +1,180 @@
 {
-  "modules": [
+  "grammarModules": [
     {
-      "id": "GER_MODULE_DATIVE_PREP",
+      "id": "de_mod_dative_prep",
       "language": "de",
-      "title": "Dative Prepositions",
-      "content": "The preposition 'mit' (with) always forces the following noun into the Dative case. Masculine 'der' becomes 'dem'.",
+      "title": "Dative Prepositions (aus, bei, mit, nach, seit, von, zu)",
+      "content": "These prepositions always force the noun into the Dative case. Masculine 'der' becomes 'dem', feminine 'die' becomes 'der', neuter 'das' becomes 'dem', and plural 'die' becomes 'den' (+ -n).",
+      "isMastered": true
+    },
+    {
+      "id": "de_mod_accusative_prep",
+      "language": "de",
+      "title": "Accusative Prepositions (bis, durch, für, gegen, ohne, um)",
+      "content": "Always govern the Accusative case regardless of movement or rest. Masculine 'der' becomes 'den', while feminine, neuter, and plural stay unchanged.",
+      "isMastered": false
+    },
+    {
+      "id": "de_mod_genitive_prep",
+      "language": "de",
+      "title": "Genitive Prepositions (während, trotz, wegen, statt)",
+      "content": "High-register B2 prepositions that take the Genitive case ('des Regens', 'der Situation'). Masculine and neuter nouns take an -(e)s ending.",
+      "isMastered": false
+    },
+    {
+      "id": "de_mod_verb_rektion",
+      "language": "de",
+      "title": "Verbs with Fixed Prepositions (warten auf, abhängen von)",
+      "content": "Verbs that require specific prepositions and cases: 'warten auf' + Accusative, 'abhängen von' + Dative, 'denken an' + Accusative, 'leiden an/unter' + Dative.",
+      "isMastered": false
+    },
+    {
+      "id": "de_mod_adjective_declension",
+      "language": "de",
+      "title": "Adjective Declensions (Strong, Weak & Mixed)",
+      "content": "Adjective endings change based on whether a definite article, indefinite article, or zero article precedes the noun.",
+      "isMastered": false
+    },
+    {
+      "id": "de_mod_passive_voice",
+      "language": "de",
+      "title": "Passive Voice & Alternatives (sein zu + Infinitiv)",
+      "content": "Formed with 'werden + Partizip II'. In formal B2 German, modal passives are often replaced with 'sein zu + Infinitiv' or adjectives in '-bar'/'-lich'.",
+      "isMastered": false
+    },
+    {
+      "id": "pl_mod_aspect_pairs",
+      "language": "pl",
+      "title": "Aspect Pairs (Dokonany vs Niedokonany)",
+      "content": "Polish verbs come in aspect pairs: imperfective (robić, czytać, pisać) denoting ongoing processes or habits, and perfective (zrobić, przeczytać, napisać) denoting completed actions.",
+      "isMastered": true
+    },
+    {
+      "id": "pl_mod_instrumental_case",
+      "language": "pl",
+      "title": "Instrumental Case (Narzędnik: -em, -ą, -ami)",
+      "content": "Required when describing identity after 'być' (On jest inżynierem), with preposition 'z' (with), and to indicate instruments or tools used.",
+      "isMastered": false
+    },
+    {
+      "id": "pl_mod_locative_case",
+      "language": "pl",
+      "title": "Locative Case (Miejscownik: w, na, po, o, przy)",
+      "content": "Used strictly with location and topic prepositions. Masculine and neuter nouns usually take '-e' (with consonant mutation) or '-u'.",
+      "isMastered": false
+    },
+    {
+      "id": "pl_mod_genitive_negation",
+      "language": "pl",
+      "title": "Genitive with Negated Verbs (Dopełniacz)",
+      "content": "When an accusative transitive verb is negated with 'nie', the direct object shifts into the Genitive case (Mam czas -> Nie mam czasu; Czytam książkę -> Nie czytam książki).",
+      "isMastered": false
+    },
+    {
+      "id": "pl_mod_numeral_governance",
+      "language": "pl",
+      "title": "Numeral Governance (2-4 vs 5+)",
+      "content": "Numbers 2, 3, 4 govern nominative plural (dwa stoły), while 5 and above govern genitive plural (pięć stołów).",
       "isMastered": false
     }
   ],
-  "rules": [
+  "grammarRules": [
     {
-      "id": "GER_RULE_DAT_MIT",
-      "moduleId": "GER_MODULE_DATIVE_PREP",
+      "id": "de_rule_mit_dative",
+      "moduleId": "de_mod_dative_prep",
       "targetWord": "mit",
-      "conditionCheck": "REQUIRE_DATIVE",
-      "errorMessage": "Wait. 'mit' is a strict Dative preposition. The masculine article 'der' must become 'dem'."
+      "conditionCheck": "dem",
+      "errorMessage": "Remember: 'mit' always takes the Dative case ('mit dem Tisch')."
+    },
+    {
+      "id": "de_rule_trotz_genitive",
+      "moduleId": "de_mod_genitive_prep",
+      "targetWord": "trotz",
+      "conditionCheck": "des",
+      "errorMessage": "Remember: 'trotz' governs the Genitive case ('trotz des Regens')."
+    },
+    {
+      "id": "de_rule_warten_auf",
+      "moduleId": "de_mod_verb_rektion",
+      "targetWord": "warten auf",
+      "conditionCheck": "auf",
+      "errorMessage": "Remember: 'warten' requires preposition 'auf' + Accusative."
+    },
+    {
+      "id": "pl_rule_zrobic_aspect",
+      "moduleId": "pl_mod_aspect_pairs",
+      "targetWord": "zrobić",
+      "conditionCheck": "zrobić",
+      "errorMessage": "Remember: Completed action requires the perfective aspect ('zrobić')."
+    },
+    {
+      "id": "pl_rule_byc_narzednik",
+      "moduleId": "pl_mod_instrumental_case",
+      "targetWord": "inżynierem",
+      "conditionCheck": "-em",
+      "errorMessage": "Remember: Role after 'być' takes the Instrumental case ('-em')."
     }
   ],
   "lexemes": [
     {
-      "rootWord": "Tisch",
+      "id": "de_tisch",
+      "rootWord": "der Tisch",
       "language": "de",
-      "wordType": "NOUN",
-      "translations": ["table"],
-      "grammarRequirements": {
-        "gender": "MASCULINE",
-        "plural": "Tische"
-      }
+      "wordType": "Noun",
+      "grammarRequirements": "Maskulinum (der), Plural: die Tische",
+      "skillType": "gender",
+      "initialDifficulty": 4.0,
+      "initialStability": 3.0
     },
     {
-      "rootWord": "czytać",
+      "id": "de_entscheidung",
+      "rootWord": "die Entscheidung",
+      "language": "de",
+      "wordType": "Noun",
+      "grammarRequirements": "Femininum (die), Plural: die Entscheidungen",
+      "skillType": "gender",
+      "initialDifficulty": 4.0,
+      "initialStability": 3.0
+    },
+    {
+      "id": "de_warten_auf",
+      "rootWord": "warten auf",
+      "language": "de",
+      "wordType": "Verb",
+      "grammarRequirements": "warten auf + Akkusativ",
+      "skillType": "rektion",
+      "initialDifficulty": 5.0,
+      "initialStability": 2.0
+    },
+    {
+      "id": "de_trotz",
+      "rootWord": "trotz des Regens",
+      "language": "de",
+      "wordType": "Preposition",
+      "grammarRequirements": "trotz + Genitiv",
+      "skillType": "kasus",
+      "initialDifficulty": 5.5,
+      "initialStability": 2.0
+    },
+    {
+      "id": "pl_czytac",
+      "rootWord": "przeczytać",
       "language": "pl",
-      "wordType": "VERB",
-      "translations": ["to read"],
-      "grammarRequirements": {
-        "aspect": "IMPERFECTIVE",
-        "perfectivePair": "przeczytać"
-      }
+      "wordType": "Verb",
+      "grammarRequirements": "Aspekt dokonany (czytać / przeczytać)",
+      "skillType": "aspect",
+      "initialDifficulty": 5.0,
+      "initialStability": 2.0
+    },
+    {
+      "id": "pl_ksiazka",
+      "rootWord": "książka",
+      "language": "pl",
+      "wordType": "Noun",
+      "grammarRequirements": "Rzeczownik żeński (-a)",
+      "skillType": "gender",
+      "initialDifficulty": 4.0,
+      "initialStability": 3.0
     }
   ]
 }

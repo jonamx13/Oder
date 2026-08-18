@@ -29,19 +29,24 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -61,6 +66,11 @@ import com.oder.core.theme.TextPrimary
 import com.oder.core.theme.TextSecondary
 import com.oder.core.theme.TextTertiary
 
+enum class DashboardTab {
+    TRAINING,
+    LIBRARY
+}
+
 @Composable
 fun DashboardScreen(
     onNavigateToReview: (language: String) -> Unit,
@@ -68,19 +78,75 @@ fun DashboardScreen(
     viewModel: DashboardViewModel = viewModel(factory = DashboardViewModel.Factory(LocalContext.current))
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var currentTab by remember { mutableStateOf(DashboardTab.TRAINING) }
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(OledBlack)
     ) {
-        // --- Custom Flag-Based Language Switcher Top Bar ---
+        // Main Tab Content Area
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
+            AnimatedContent(
+                targetState = currentTab,
+                transitionSpec = {
+                    fadeIn(
+                        animationSpec = spring(
+                            stiffness = Spring.StiffnessLow,
+                            dampingRatio = Spring.DampingRatioMediumBouncy
+                        )
+                    ) togetherWith fadeOut(
+                        animationSpec = spring(
+                            stiffness = Spring.StiffnessLow,
+                            dampingRatio = Spring.DampingRatioMediumBouncy
+                        )
+                    )
+                },
+                label = "dashboard_tab_crossfade"
+            ) { tab ->
+                when (tab) {
+                    DashboardTab.TRAINING -> TrainingTabView(
+                        uiState = uiState,
+                        onSelectLanguage = { viewModel.selectLanguage(it) },
+                        onNavigateToReview = onNavigateToReview
+                    )
+                    DashboardTab.LIBRARY -> GrammarHubScreen(
+                        initialLanguage = uiState.selectedLanguage
+                    )
+                }
+            }
+        }
+
+        // Minimalist Bottom Navigation Bar
+        MinimalistBottomNavBar(
+            currentTab = currentTab,
+            onSelectTab = { currentTab = it }
+        )
+    }
+}
+
+@Composable
+private fun TrainingTabView(
+    uiState: DashboardUiState,
+    onSelectLanguage: (String) -> Unit,
+    onNavigateToReview: (String) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(OledBlack)
+    ) {
+        // Custom Flag Top Bar
         CustomLanguageTopBar(
             selectedLanguage = uiState.selectedLanguage,
-            onSelectLanguage = { viewModel.selectLanguage(it) }
+            onSelectLanguage = onSelectLanguage
         )
 
-        // --- Main Screen Body ---
+        // Animated Body
         AnimatedContent(
             targetState = uiState.selectedLanguage,
             transitionSpec = {
@@ -109,7 +175,6 @@ fun DashboardScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                // Header Area
                 LanguageHeaderSection(
                     language = language,
                     totalVocab = uiState.totalVocabulary
@@ -117,7 +182,7 @@ fun DashboardScreen(
 
                 Spacer(modifier = Modifier.height(28.dp))
 
-                // Massive, Elegant 'Start Daily Session' Center Button
+                // Massive Centered Button
                 StartDailySessionButton(
                     dueCardsCount = uiState.dueCardsCount,
                     onClick = { onNavigateToReview(language) },
@@ -126,7 +191,7 @@ fun DashboardScreen(
 
                 Spacer(modifier = Modifier.height(36.dp))
 
-                // Sleek Minimalist Grammar Mastery Section
+                // Grammar Mastery Section
                 GrammarMasterySection(
                     nounMastery = uiState.nounMastery,
                     verbMastery = uiState.verbMastery,
@@ -137,6 +202,88 @@ fun DashboardScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
+    }
+}
+
+@Composable
+private fun MinimalistBottomNavBar(
+    currentTab: DashboardTab,
+    onSelectTab: (DashboardTab) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(DarkSurface)
+            .border(width = 1.dp, color = DarkBorder)
+            .padding(vertical = 12.dp, horizontal = 32.dp),
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        BottomNavTabItem(
+            label = "Training",
+            icon = Icons.Default.Home,
+            isSelected = currentTab == DashboardTab.TRAINING,
+            onClick = { onSelectTab(DashboardTab.TRAINING) }
+        )
+
+        BottomNavTabItem(
+            label = "Library",
+            icon = Icons.AutoMirrored.Filled.MenuBook,
+            isSelected = currentTab == DashboardTab.LIBRARY,
+            onClick = { onSelectTab(DashboardTab.LIBRARY) }
+        )
+    }
+}
+
+@Composable
+private fun BottomNavTabItem(
+    label: String,
+    icon: ImageVector,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.90f else 1f,
+        animationSpec = spring(
+            stiffness = Spring.StiffnessLow,
+            dampingRatio = Spring.DampingRatioMediumBouncy
+        ),
+        label = "nav_tab_scale"
+    )
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
+            .padding(horizontal = 24.dp, vertical = 6.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = if (isSelected) TextPrimary else TextTertiary,
+            modifier = Modifier.size(22.dp)
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = label,
+            style = OderTypography.labelSmall.copy(
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                fontSize = 11.sp
+            ),
+            color = if (isSelected) TextPrimary else TextTertiary
+        )
     }
 }
 

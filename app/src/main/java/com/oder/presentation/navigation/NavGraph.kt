@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.oder.presentation.dashboard.DashboardScreen
+import com.oder.presentation.dashboard.GrammarHubScreen
 import com.oder.presentation.engine.ReviewScreen
 import com.oder.presentation.onboarding.OnboardingScreen
 import kotlinx.serialization.Serializable
@@ -22,6 +23,9 @@ sealed interface Screen {
 
     @Serializable
     data object Dashboard : Screen
+
+    @Serializable
+    data class GrammarHub(val language: String = "de") : Screen
 
     @Serializable
     data class ReviewSession(val language: String = "de") : Screen
@@ -112,6 +116,11 @@ fun OderNavGraph(
                     navController.navigate(Screen.ReviewSession(language = language))
                 }
             )
+        }
+
+        composable<Screen.GrammarHub> { backStackEntry ->
+            val route = backStackEntry.toRoute<Screen.GrammarHub>()
+            GrammarHubScreen(initialLanguage = route.language)
         }
 
         composable<Screen.ReviewSession> { backStackEntry ->
