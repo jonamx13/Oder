@@ -24,15 +24,17 @@ sealed interface Screen {
     data object Dashboard : Screen
 
     @Serializable
-    data class ReviewEngine(val language: String = "de") : Screen
+    data class ReviewSession(val language: String = "de") : Screen
 }
 
 @Composable
 fun OderNavGraph(
     navController: NavHostController,
-    modifier: Modifier = Modifier,
-    startDestination: Screen = Screen.Dashboard
+    hasCompletedOnboarding: Boolean,
+    modifier: Modifier = Modifier
 ) {
+    val startDestination: Screen = if (hasCompletedOnboarding) Screen.Dashboard else Screen.Onboarding
+
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -107,13 +109,13 @@ fun OderNavGraph(
         composable<Screen.Dashboard> {
             DashboardScreen(
                 onNavigateToReview = { language ->
-                    navController.navigate(Screen.ReviewEngine(language = language))
+                    navController.navigate(Screen.ReviewSession(language = language))
                 }
             )
         }
 
-        composable<Screen.ReviewEngine> { backStackEntry ->
-            val route = backStackEntry.toRoute<Screen.ReviewEngine>()
+        composable<Screen.ReviewSession> { backStackEntry ->
+            val route = backStackEntry.toRoute<Screen.ReviewSession>()
             ReviewScreen(
                 language = route.language,
                 onNavigateBack = {

@@ -135,7 +135,7 @@ private fun DashboardTopBar(
                 color = TextPrimary
             )
             Text(
-                text = "B2 Spaced Repetition Engine",
+                text = "Language Mastery",
                 style = OderTypography.labelSmall,
                 color = TextTertiary
             )
@@ -239,7 +239,6 @@ private fun HeroStatusCard(
             .border(1.dp, DarkBorder, RoundedCornerShape(16.dp))
             .padding(20.dp)
     ) {
-        // Engine status header with animated language title
         AnimatedContent(
             targetState = uiState.selectedLanguage,
             transitionSpec = {
@@ -276,19 +275,19 @@ private fun HeroStatusCard(
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        // Interval status metrics
+        // Practice status metrics
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             StatusMetricBox(
-                label = "Due for Calibration",
+                label = "Ready for Review",
                 value = "${uiState.dueCardsCount}",
                 modifier = Modifier.weight(1f),
                 accentColor = TextPrimary
             )
             StatusMetricBox(
-                label = "Total Lexemes",
+                label = "Total Vocabulary",
                 value = "${uiState.totalLexemes}",
                 modifier = Modifier.weight(1f),
                 accentColor = TextSecondary
@@ -297,7 +296,7 @@ private fun HeroStatusCard(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Large Tactile CTA Button with Spring Animation
+        // Large Tactile CTA Button
         StartTrainingButton(
             dueCount = uiState.dueCardsCount,
             onClick = onStartReview
@@ -372,7 +371,7 @@ private fun StartTrainingButton(
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Start Daily Training",
+                text = "Start Daily Practice",
                 style = OderTypography.labelLarge.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
@@ -404,13 +403,13 @@ private fun GrammarMatricesHeader() {
             .padding(top = 8.dp)
     ) {
         Text(
-            text = "Grammar Interceptors",
+            text = "Grammar Topics",
             style = OderTypography.titleLarge,
             color = TextPrimary
         )
         Spacer(modifier = Modifier.height(2.dp))
         Text(
-            text = "Pre-evaluation structural matrices & inflection rules",
+            text = "Practice key sentence structures and inflection patterns",
             style = OderTypography.bodySmall,
             color = TextTertiary
         )
@@ -479,7 +478,6 @@ private fun GrammarMatrixCard(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Tactile Progress Indicator
         LinearProgressIndicator(
             progress = { matrixItem.masteryRate },
             modifier = Modifier
@@ -497,12 +495,12 @@ private fun GrammarMatrixCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "${matrixItem.activeRules} / ${matrixItem.totalRules} active rules",
+                text = "${matrixItem.activeRules} of ${matrixItem.totalRules} rules learned",
                 style = OderTypography.labelSmall,
                 color = TextTertiary
             )
             Text(
-                text = if (matrixItem.masteryRate >= 0.75f) "Calibrated" else "In Training",
+                text = if (matrixItem.masteryRate >= 0.75f) "Mastered" else "In Progress",
                 style = OderTypography.labelSmall,
                 color = if (matrixItem.masteryRate >= 0.75f) AccentSuccess else TextTertiary
             )

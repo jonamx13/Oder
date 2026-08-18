@@ -31,8 +31,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Speed
-import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -108,7 +108,9 @@ fun OnboardingScreen(
 
                 OnboardingStep.CALIBRATION_COMPLETE -> CalibrationCompleteView(
                     uiState = uiState,
-                    onEnterDashboard = onNavigateToDashboard
+                    onEnterDashboard = {
+                        viewModel.completeOnboarding(context, onNavigateToDashboard)
+                    }
                 )
             }
         }
@@ -148,16 +150,16 @@ private fun WelcomeStepView(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Precision B2 Language Engine",
+                text = "Master German & Polish with confidence",
                 style = OderTypography.bodyMedium,
                 color = TextSecondary
             )
 
             Spacer(modifier = Modifier.height(36.dp))
 
-            // Language Selection Pills
+            // Language Selection
             Text(
-                text = "SELECT TARGET ENGINE",
+                text = "CHOOSE YOUR LANGUAGE",
                 style = OderTypography.labelSmall.copy(letterSpacing = 1.5.sp),
                 color = TextTertiary
             )
@@ -170,7 +172,7 @@ private fun WelcomeStepView(
             ) {
                 LanguageSelectionCard(
                     title = "Deutsch",
-                    subtitle = "Kasus & Verb-Rektion",
+                    subtitle = "Cases & Prepositions",
                     badge = "DE",
                     isSelected = selectedLanguage == "de",
                     onClick = { onSelectLanguage("de") },
@@ -178,7 +180,7 @@ private fun WelcomeStepView(
                 )
                 LanguageSelectionCard(
                     title = "Polski",
-                    subtitle = "Aspekt & Deklinacja",
+                    subtitle = "Aspects & Declensions",
                     badge = "PL",
                     isSelected = selectedLanguage == "pl",
                     onClick = { onSelectLanguage("pl") },
@@ -195,17 +197,17 @@ private fun WelcomeStepView(
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             OnboardingOptionCard(
-                title = "Diagnostic Placement Calibration",
-                description = "3 targeted B2 questions to calibrate your initial FSRS memory parameters.",
-                icon = Icons.Default.Tune,
+                title = "Quick Placement Check",
+                description = "3 short questions to customize your starting review plan.",
+                icon = Icons.Default.School,
                 isPrimary = true,
                 onClick = onStartPlacement
             )
 
             OnboardingOptionCard(
-                title = "Start from Baseline",
-                description = "Initialize engine at default parameters with no prior calibrations.",
-                icon = Icons.Default.Speed,
+                title = "Start from the Beginning",
+                description = "Begin with foundational vocabulary and grammar patterns.",
+                icon = Icons.Default.PlayArrow,
                 isPrimary = false,
                 onClick = onStartScratch
             )
@@ -376,19 +378,18 @@ private fun DiagnosticStepView(
             .verticalScroll(rememberScrollState())
             .padding(24.dp)
     ) {
-        // Step progress header
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "DIAGNOSTIC CALIBRATION",
+                text = "PLACEMENT CHECK",
                 style = OderTypography.labelSmall.copy(letterSpacing = 1.5.sp),
                 color = NounMasculine
             )
             Text(
-                text = "${uiState.currentQuestionIndex + 1} / ${questions.size}",
+                text = "${uiState.currentQuestionIndex + 1} of ${questions.size}",
                 style = OderTypography.labelMedium.copy(fontWeight = FontWeight.Bold),
                 color = TextSecondary
             )
@@ -435,9 +436,8 @@ private fun DiagnosticStepView(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Multiple choice option cards
         Text(
-            text = "Select correct inflection or form:",
+            text = "Select the best option:",
             style = OderTypography.labelMedium,
             color = TextSecondary
         )
@@ -551,7 +551,7 @@ private fun DiagnosticStepView(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = if (uiState.currentQuestionIndex + 1 == questions.size) "Finalize Calibration" else "Next Question",
+                text = if (uiState.currentQuestionIndex + 1 == questions.size) "Complete Check" else "Next Question",
                 style = OderTypography.labelLarge.copy(fontWeight = FontWeight.Bold),
                 color = if (uiState.selectedOptionIndex != null) OledBlack else TextTertiary
             )
@@ -589,13 +589,13 @@ private fun CalibrationCompleteView(
             )
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "Seeding B2 Linguistic Corpus...",
+                text = "Preparing your study material...",
                 style = OderTypography.headlineSmall,
                 color = TextPrimary
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Initializing Room database & FSRS states",
+                text = "Setting up your personal vocabulary",
                 style = OderTypography.bodySmall,
                 color = TextTertiary
             )
@@ -618,7 +618,7 @@ private fun CalibrationCompleteView(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Baseline Established",
+                text = "You're All Set!",
                 style = OderTypography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                 color = TextPrimary
             )
@@ -626,14 +626,14 @@ private fun CalibrationCompleteView(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Engine calibrated for ${if (uiState.selectedLanguage == "de") "German B2" else "Polish B2"}",
+                text = "Ready to practice ${if (uiState.selectedLanguage == "de") "German" else "Polish"}",
                 style = OderTypography.bodyMedium,
                 color = TextSecondary
             )
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            // Calibration metrics summary card
+            // Summary card
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -648,12 +648,12 @@ private fun CalibrationCompleteView(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "Initial Memory Stability:",
+                        text = "Starting Review Interval:",
                         style = OderTypography.bodySmall,
                         color = TextTertiary
                     )
                     Text(
-                        text = "${uiState.calibratedStability} days",
+                        text = "${uiState.startingIntervalDays} days",
                         style = OderTypography.bodySmall.copy(fontWeight = FontWeight.Bold),
                         color = NounNeuter
                     )
@@ -664,12 +664,12 @@ private fun CalibrationCompleteView(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "Initial Curve Difficulty:",
+                        text = "Starting Level:",
                         style = OderTypography.bodySmall,
                         color = TextTertiary
                     )
                     Text(
-                        text = "${uiState.calibratedDifficulty} / 10",
+                        text = uiState.startingLevelLabel,
                         style = OderTypography.bodySmall.copy(fontWeight = FontWeight.Bold),
                         color = NounMasculine
                     )
@@ -680,12 +680,12 @@ private fun CalibrationCompleteView(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "Database Seeding:",
+                        text = "Study Material:",
                         style = OderTypography.bodySmall,
                         color = TextTertiary
                     )
                     Text(
-                        text = "Ready (Offline First)",
+                        text = "Ready (Offline)",
                         style = OderTypography.bodySmall.copy(fontWeight = FontWeight.Bold),
                         color = AccentSuccess
                     )
@@ -710,14 +710,14 @@ private fun CalibrationCompleteView(
                         onClick = onEnterDashboard
                     )
                     .padding(vertical = 16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Enter Dashboard",
-                    style = OderTypography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                    color = OledBlack
-                )
-            }
-        }
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Go to Dashboard",
+            style = OderTypography.labelLarge.copy(fontWeight = FontWeight.Bold),
+            color = OledBlack
+        )
+    }
+}
     }
 }

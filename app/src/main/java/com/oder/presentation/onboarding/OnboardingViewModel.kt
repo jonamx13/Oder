@@ -3,6 +3,7 @@ package com.oder.presentation.onboarding
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.oder.core.util.UserPreferencesRepository
 import com.oder.domain.repository.LanguageRepository
 import com.oder.domain.usecase.SeedDatabaseUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,13 +36,14 @@ data class OnboardingUiState(
     val correctAnswersCount: Int = 0,
     val isSeeding: Boolean = false,
     val isCompleted: Boolean = false,
-    val calibratedDifficulty: Double = 5.0,
-    val calibratedStability: Double = 2.0
+    val startingLevelLabel: String = "Intermediate",
+    val startingIntervalDays: Int = 3
 )
 
 class OnboardingViewModel(
     private val repository: LanguageRepository? = null,
-    private val seedDatabaseUseCase: SeedDatabaseUseCase? = null
+    private val seedDatabaseUseCase: SeedDatabaseUseCase? = null,
+    private val userPreferencesRepository: UserPreferencesRepository? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OnboardingUiState())
@@ -68,8 +70,8 @@ class OnboardingViewModel(
             it.copy(
                 step = OnboardingStep.CALIBRATION_COMPLETE,
                 isPlacementTest = false,
-                calibratedDifficulty = 5.0,
-                calibratedStability = 2.0
+                startingLevelLabel = "Foundational",
+                startingIntervalDays = 2
             )
         }
         seedBaselineDatabase(context)
@@ -90,24 +92,23 @@ class OnboardingViewModel(
 
         val nextIndex = currentState.currentQuestionIndex + 1
         if (nextIndex >= questions.size) {
-            // Diagnostic complete -> compute calibrated FSRS baseline
-            val finalDifficulty = when (updatedCorrectCount) {
-                3 -> 3.5 // Advanced baseline
-                2 -> 4.8 // Intermediate B2 baseline
-                else -> 6.5 // Foundational B2 baseline
+            val levelLabel = when (updatedCorrectCount) {
+                3 -> "Advanced"
+                2 -> "Intermediate"
+                else -> "Foundational"
             }
-            val finalStability = when (updatedCorrectCount) {
-                3 -> 4.5
-                2 -> 2.5
-                else -> 1.2
+            val intervalDays = when (updatedCorrectCount) {
+                3 -> 5
+                2 -> 3
+                else -> 1
             }
 
             _uiState.update {
                 it.copy(
                     step = OnboardingStep.CALIBRATION_COMPLETE,
                     correctAnswersCount = updatedCorrectCount,
-                    calibratedDifficulty = finalDifficulty,
-                    calibratedStability = finalStability
+                    startingLevelLabel = levelLabel,
+                    startingIntervalDays = intervalDays
                 )
             }
             seedBaselineDatabase(context)
@@ -122,10 +123,19 @@ class OnboardingViewModel(
         }
     }
 
+    fun completeOnboarding(context: Context, onNavigate: () -> Unit) {
+        viewModelScope.launch {
+            val prefs = userPreferencesRepository ?: UserPreferencesRepository(context.applicationContext)
+            prefs.setOnboardingCompleted(true)
+            onNavigate()
+        }
+    }
+
     private fun seedBaselineDatabase(context: Context) {
         viewModelScope.launch {
             _uiState.update { it.copy(isSeeding = true) }
-            seedDatabaseUseCase?.invoke(context)
+            val seeder = seedDatabaseUseCase ?: (repository?.let { SeedDatabaseUseCase(it) })
+            seeder?.invoke(context)
             _uiState.update { it.copy(isSeeding = false, isCompleted = true) }
         }
     }
@@ -135,54 +145,54 @@ class OnboardingViewModel(
             listOf(
                 DiagnosticQuestion(
                     id = "de_q1",
-                    prompt = "Kasus-Rektion (Genitiv)",
+                    prompt = "Genitive Prepositions",
                     context = "Wir spazieren im Park, trotz ___ starken Regens.",
                     options = listOf("dem", "des", "den", "das"),
                     correctIndex = 1,
-                    explanation = "'trotz' regiert immer den Genitiv (des starken Regens)."
+                    explanation = "'trotz' always takes the genitive case ('des starken Regens')."
                 ),
                 DiagnosticQuestion(
                     id = "de_q2",
-                    prompt = "Verben mit Präpositionen",
+                    prompt = "Verbs with Fixed Prepositions",
                     context = "Die Teilnehmer warten ungeduldig ___ die Ergebnisse.",
                     options = listOf("auf", "an", "nach", "von"),
                     correctIndex = 0,
-                    explanation = "'warten auf' erfordert die Präposition 'auf' mit Akkusativ."
+                    explanation = "'warten auf' takes the preposition 'auf' + accusative."
                 ),
                 DiagnosticQuestion(
                     id = "de_q3",
-                    prompt = "Genus & Deklination",
+                    prompt = "Noun Gender & Endings",
                     context = "Eine weitreichende ___ wurde einstimmig beschlossen.",
                     options = listOf("der Beschluss", "die Entscheidung", "das Resultat", "den Vorschlag"),
                     correctIndex = 1,
-                    explanation = "'Eine weitreichende' verlangt ein femininum Substantiv (die Entscheidung)."
+                    explanation = "'Eine weitreichende' matches feminine noun 'die Entscheidung'."
                 )
             )
         } else {
             listOf(
                 DiagnosticQuestion(
                     id = "pl_q1",
-                    prompt = "Aspekt Czasownika",
+                    prompt = "Verb Aspect",
                     context = "Wczoraj wreszcie ___ cały trudny raport.",
                     options = listOf("pisałem", "napisałem", "pisać", "pisano"),
                     correctIndex = 1,
-                    explanation = "Ukończona czynność jednorazowa wymaga aspektu dokonanego (napisałem)."
+                    explanation = "Completed action requires perfective aspect ('napisałem')."
                 ),
                 DiagnosticQuestion(
                     id = "pl_q2",
-                    prompt = "Rządzenie Przypadkiem (Narzędnik)",
+                    prompt = "Instrumental Case",
                     context = "Mój brat jest znakomitym ___.",
                     options = listOf("inżynier", "inżyniera", "inżynierem", "inżynierowi"),
                     correctIndex = 2,
-                    explanation = "Konstrukcja 'być + rzeczownik' wymaga Narzędnika (-em)."
+                    explanation = "Profession after 'być' requires the instrumental case (-em)."
                 ),
                 DiagnosticQuestion(
                     id = "pl_q3",
-                    prompt = "Rodzaj Gramatyczny",
+                    prompt = "Grammatical Gender",
                     context = "Ta nowa ___ została wydana w Krakowie.",
                     options = listOf("podręcznik", "książka", "opowiadanie", "artykuł"),
                     correctIndex = 1,
-                    explanation = "Zaimek 'Ta nowa' wymaga rzeczownika rodzaju żeńskiego (-a)."
+                    explanation = "Demonstrative 'Ta nowa' matches feminine noun 'książka'."
                 )
             )
         }

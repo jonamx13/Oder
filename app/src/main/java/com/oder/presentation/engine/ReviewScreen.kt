@@ -189,7 +189,7 @@ private fun ReviewTopBar(
 
             // Step Counter
             Text(
-                text = if (totalCards > 0) "${currentIndex + 1} / $totalCards" else "Queue Empty",
+                text = if (totalCards > 0) "Word ${currentIndex + 1} of $totalCards" else "Queue Empty",
                 style = OderTypography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
                 color = TextSecondary
             )
@@ -256,7 +256,7 @@ private fun ReviewContent(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Text(
-                text = if (isGenderCard) "Select Grammatical Gender" else "Inflection / Exact Formulation",
+                text = if (isGenderCard) "Select the correct article / gender:" else "Type the correct sentence form:",
                 style = OderTypography.labelMedium,
                 color = TextSecondary
             )
@@ -282,7 +282,7 @@ private fun ReviewContent(
             }
         }
 
-        // Revealed Answer & FSRS Rating Section
+        // Revealed Answer & Recall Rating Section
         AnimatedVisibility(
             visible = isAnswerRevealed,
             enter = fadeIn(spring(stiffness = Spring.StiffnessLow, dampingRatio = Spring.DampingRatioMediumBouncy)) +
@@ -329,9 +329,9 @@ private fun CardPromptSection(card: ReviewCard) {
                 )
             }
 
-            // SRS Stability Micro-Indicator
+            // Learner-friendly memory strength indicator
             Text(
-                text = "Stability: ${"%.1f".format(card.srsState.stability)}d • Rep: ${card.srsState.repetitionCount}",
+                text = "Memory Strength: ${"%.0f".format(card.srsState.stability)}d • Reviews: ${card.srsState.repetitionCount}",
                 style = OderTypography.labelSmall,
                 color = TextTertiary
             )
@@ -389,7 +389,7 @@ private fun RevealedAnswerSection(
                 modifier = Modifier.size(18.dp)
             )
             Text(
-                text = if (isCorrect) "Linguistic Match" else "Calibration Required",
+                text = if (isCorrect) "Correct!" else "Needs Review",
                 style = OderTypography.labelMedium.copy(fontWeight = FontWeight.Bold),
                 color = if (isCorrect) AccentSuccess else AccentError
             )
@@ -398,7 +398,7 @@ private fun RevealedAnswerSection(
         Spacer(modifier = Modifier.height(14.dp))
 
         Text(
-            text = "Target Pattern:",
+            text = "Correct Form:",
             style = OderTypography.labelSmall,
             color = TextTertiary
         )
@@ -411,35 +411,35 @@ private fun RevealedAnswerSection(
         Spacer(modifier = Modifier.height(20.dp))
 
         Text(
-            text = "Rate FSRS Recall Difficulty:",
+            text = "How well did you remember this?",
             style = OderTypography.labelSmall,
             color = TextSecondary
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // 3 Tactile FSRS Rating Buttons
+        // 3 Recall Rating Buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             RatingButton(
                 label = "Hard",
-                sublabel = "Recalibrate",
+                sublabel = "Review soon",
                 accentColor = NounFeminine,
                 onClick = { onRate(Rating.HARD) },
                 modifier = Modifier.weight(1f)
             )
             RatingButton(
                 label = "Good",
-                sublabel = "Standard",
+                sublabel = "Remembered",
                 accentColor = NounMasculine,
                 onClick = { onRate(Rating.GOOD) },
                 modifier = Modifier.weight(1f)
             )
             RatingButton(
                 label = "Easy",
-                sublabel = "Retained",
+                sublabel = "Mastered",
                 accentColor = NounNeuter,
                 onClick = { onRate(Rating.EASY) },
                 modifier = Modifier.weight(1f)
@@ -540,7 +540,7 @@ private fun SessionFinishedView(
         Spacer(modifier = Modifier.height(20.dp))
 
         Text(
-            text = "Calibration Complete",
+            text = "Practice Complete!",
             style = OderTypography.headlineLarge.copy(fontWeight = FontWeight.Bold),
             color = TextPrimary
         )
@@ -548,7 +548,7 @@ private fun SessionFinishedView(
         Spacer(modifier = Modifier.height(6.dp))
 
         Text(
-            text = "$reviewedCount review intervals adjusted via FSRS engine",
+            text = "Great work! $reviewedCount words reviewed and updated.",
             style = OderTypography.bodyMedium,
             color = TextSecondary
         )
@@ -573,7 +573,7 @@ private fun SessionFinishedView(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Return to Dashboard",
+                text = "Back to Dashboard",
                 style = OderTypography.labelLarge.copy(fontWeight = FontWeight.Bold),
                 color = OledBlack
             )

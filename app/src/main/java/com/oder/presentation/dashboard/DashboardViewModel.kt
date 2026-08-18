@@ -13,8 +13,8 @@ enum class AppLanguage(
     val badge: String,
     val subtitle: String
 ) {
-    GERMAN("de", "Deutsch", "DE", "Kasus & Verb-Rektion Engine"),
-    POLISH("pl", "Polski", "PL", "Aspekt & Deklinacja Engine")
+    GERMAN("de", "Deutsch", "DE", "Cases & Verb Prepositions"),
+    POLISH("pl", "Polski", "PL", "Aspects & Case Declensions")
 }
 
 data class GrammarMatrixItem(
@@ -55,7 +55,7 @@ class DashboardViewModel(
             AppLanguage.GERMAN -> listOf(
                 GrammarMatrixItem(
                     id = "de_akk",
-                    title = "Akkusativ-Präpositionen",
+                    title = "Accusative Prepositions",
                     caseOrTopic = "bis, durch, für, gegen, ohne, um",
                     masteryRate = 0.85f,
                     totalRules = 12,
@@ -63,7 +63,7 @@ class DashboardViewModel(
                 ),
                 GrammarMatrixItem(
                     id = "de_dat",
-                    title = "Dativ-Präpositionen",
+                    title = "Dative Prepositions",
                     caseOrTopic = "aus, bei, mit, nach, seit, von, zu",
                     masteryRate = 0.65f,
                     totalRules = 16,
@@ -71,7 +71,7 @@ class DashboardViewModel(
                 ),
                 GrammarMatrixItem(
                     id = "de_gen",
-                    title = "Genitiv-Präpositionen",
+                    title = "Genitive Prepositions",
                     caseOrTopic = "während, trotz, wegen, statt",
                     masteryRate = 0.40f,
                     totalRules = 8,
@@ -79,7 +79,7 @@ class DashboardViewModel(
                 ),
                 GrammarMatrixItem(
                     id = "de_rek",
-                    title = "Verben mit Präpositionen",
+                    title = "Verbs with Fixed Prepositions",
                     caseOrTopic = "warten auf (+Akk), abhängen von (+Dat)",
                     masteryRate = 0.55f,
                     totalRules = 25,
@@ -87,16 +87,16 @@ class DashboardViewModel(
                 ),
                 GrammarMatrixItem(
                     id = "de_adj",
-                    title = "Adjektivdeklination (Typ 1/2/3)",
-                    caseOrTopic = "Starke / Schwache / Gemischte Flexion",
+                    title = "Adjective Endings",
+                    caseOrTopic = "Strong, weak, and mixed declensions",
                     masteryRate = 0.70f,
                     totalRules = 18,
                     activeRules = 13
                 ),
                 GrammarMatrixItem(
                     id = "de_pas",
-                    title = "Passiv & Passiversatz",
-                    caseOrTopic = "Vorgangspassiv, Zustandspassiv, sein zu + Inf",
+                    title = "Passive Voice Forms",
+                    caseOrTopic = "Vorgangspassiv & Zustandspassiv structures",
                     masteryRate = 0.30f,
                     totalRules = 10,
                     activeRules = 3
@@ -105,48 +105,48 @@ class DashboardViewModel(
             AppLanguage.POLISH -> listOf(
                 GrammarMatrixItem(
                     id = "pl_asp",
-                    title = "Aspekt Dokonany / Niedokonany",
-                    caseOrTopic = "Pary aspektowe (robić / zrobić, czytać / przeczytać)",
+                    title = "Perfective vs Imperfective Verbs",
+                    caseOrTopic = "Aspect pairs (robić / zrobić, czytać / przeczytać)",
                     masteryRate = 0.75f,
                     totalRules = 20,
                     activeRules = 15
                 ),
                 GrammarMatrixItem(
                     id = "pl_nar",
-                    title = "Narzędnik (Instrumental)",
-                    caseOrTopic = "z kim? z czym? (być + narzędnik)",
+                    title = "Instrumental Case (Narzędnik)",
+                    caseOrTopic = "Used after 'być' and with 'z'",
                     masteryRate = 0.80f,
                     totalRules = 14,
                     activeRules = 11
                 ),
                 GrammarMatrixItem(
                     id = "pl_mie",
-                    title = "Miejscownik (Locative)",
-                    caseOrTopic = "o kim? o czym? (w, na, po, przy)",
+                    title = "Locative Case (Miejscownik)",
+                    caseOrTopic = "Location prepositions (w, na, po, przy)",
                     masteryRate = 0.60f,
                     totalRules = 16,
                     activeRules = 10
                 ),
                 GrammarMatrixItem(
                     id = "pl_dop",
-                    title = "Dopełniacz (Genitive - Negacja)",
-                    caseOrTopic = "Koniugacja przeczeń & częściowość",
+                    title = "Genitive with Negation (Dopełniacz)",
+                    caseOrTopic = "Negated verbs and quantity expressions",
                     masteryRate = 0.45f,
                     totalRules = 22,
                     activeRules = 10
                 ),
                 GrammarMatrixItem(
                     id = "pl_cel",
-                    title = "Celownik (Dative)",
-                    caseOrTopic = "komu? czemu? (dziękować, pomagać)",
+                    title = "Dative Case (Celownik)",
+                    caseOrTopic = "Indirect objects (dziękować, pomagać)",
                     masteryRate = 0.35f,
                     totalRules = 12,
                     activeRules = 4
                 ),
                 GrammarMatrixItem(
                     id = "pl_lic",
-                    title = "Liczebniki z rzeczownikami",
-                    caseOrTopic = "2, 3, 4 vs 5+ rządzenie przypadkiem",
+                    title = "Numbers with Nouns",
+                    caseOrTopic = "Counting rules (2, 3, 4 vs 5+)",
                     masteryRate = 0.25f,
                     totalRules = 10,
                     activeRules = 2

@@ -22,11 +22,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.WarningAmber
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,7 +41,6 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.oder.core.theme.AccentError
 import com.oder.core.theme.AccentWarning
 import com.oder.core.theme.DarkBorder
 import com.oder.core.theme.DarkSurface
@@ -57,11 +55,10 @@ fun InterceptorBottomSheet(
     activeGrammarError: String?,
     onAcknowledge: () -> Unit,
     modifier: Modifier = Modifier,
-    title: String = "Grammar Interceptor Triggered"
+    title: String = "Grammar Rule Reminder"
 ) {
     val haptic = LocalHapticFeedback.current
 
-    // Trigger haptic feedback whenever an activeGrammarError appears
     LaunchedEffect(activeGrammarError) {
         if (!activeGrammarError.isNullOrBlank()) {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -104,7 +101,7 @@ fun InterceptorBottomSheet(
                     .background(DarkSurface)
                     .border(
                         width = 1.dp,
-                        color = AccentError.copy(alpha = 0.5f),
+                        color = AccentWarning.copy(alpha = 0.5f),
                         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
                     )
                     .padding(24.dp)
@@ -120,7 +117,7 @@ fun InterceptorBottomSheet(
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                // Header with warning icon
+                // Header with info icon
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -129,12 +126,12 @@ fun InterceptorBottomSheet(
                         modifier = Modifier
                             .size(36.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(AccentError.copy(alpha = 0.15f)),
+                            .background(AccentWarning.copy(alpha = 0.15f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.WarningAmber,
-                            contentDescription = "Grammar Interceptor Warning",
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "Grammar Reminder",
                             tint = AccentWarning,
                             modifier = Modifier.size(20.dp)
                         )
@@ -147,9 +144,9 @@ fun InterceptorBottomSheet(
                             color = TextPrimary
                         )
                         Text(
-                            text = "Inflection rule & constraint violation",
+                            text = "Helpful pattern explanation",
                             style = OderTypography.labelSmall,
-                            color = AccentError
+                            color = AccentWarning
                         )
                     }
                 }
@@ -215,7 +212,7 @@ private fun AcknowledgeButton(
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "Acknowledge & Adjust FSRS Interval",
+            text = "Got It, Continue Practice",
             style = OderTypography.labelLarge.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 15.sp
