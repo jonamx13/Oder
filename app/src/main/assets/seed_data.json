@@ -1,0 +1,174 @@
+{
+  "lexemes": [
+    {
+      "id": "de_warten_auf",
+      "rootWord": "warten auf",
+      "language": "de",
+      "wordType": "Verb",
+      "grammarRequirements": "Präpositionalverb: warten auf + Akkusativ",
+      "skillType": "rektion",
+      "initialDifficulty": 5.0,
+      "initialStability": 2.0
+    },
+    {
+      "id": "de_abhangen_von",
+      "rootWord": "abhängen von",
+      "language": "de",
+      "wordType": "Verb",
+      "grammarRequirements": "Präpositionalverb: abhängen von + Dativ",
+      "skillType": "rektion",
+      "initialDifficulty": 5.5,
+      "initialStability": 2.0
+    },
+    {
+      "id": "de_entscheidung",
+      "rootWord": "die Entscheidung",
+      "language": "de",
+      "wordType": "Noun",
+      "grammarRequirements": "Femininum (die), Plural: die Entscheidungen",
+      "skillType": "gender",
+      "initialDifficulty": 4.0,
+      "initialStability": 3.0
+    },
+    {
+      "id": "de_erfolg",
+      "rootWord": "der Erfolg",
+      "language": "de",
+      "wordType": "Noun",
+      "grammarRequirements": "Maskulinum (der), Plural: die Erfolge",
+      "skillType": "gender",
+      "initialDifficulty": 4.5,
+      "initialStability": 3.0
+    },
+    {
+      "id": "de_ereignis",
+      "rootWord": "das Ereignis",
+      "language": "de",
+      "wordType": "Noun",
+      "grammarRequirements": "Neutrum (das), Plural: die Ereignisse",
+      "skillType": "gender",
+      "initialDifficulty": 4.8,
+      "initialStability": 3.0
+    },
+    {
+      "id": "de_trotz",
+      "rootWord": "trotz des Regens",
+      "language": "de",
+      "wordType": "Preposition",
+      "grammarRequirements": "Präposition mit Genitiv: trotz + Genitiv",
+      "skillType": "kasus",
+      "initialDifficulty": 6.0,
+      "initialStability": 1.5
+    },
+    {
+      "id": "pl_robic_zrobic",
+      "rootWord": "zrobić",
+      "language": "pl",
+      "wordType": "Verb",
+      "grammarRequirements": "Aspekt Dokonany (Perfektiv) pary: robić / zrobić",
+      "skillType": "aspect",
+      "initialDifficulty": 5.5,
+      "initialStability": 2.0
+    },
+    {
+      "id": "pl_czytac_przeczytac",
+      "rootWord": "przeczytać",
+      "language": "pl",
+      "wordType": "Verb",
+      "grammarRequirements": "Aspekt Dokonany (Perfektiv) pary: czytać / przeczytać",
+      "skillType": "aspect",
+      "initialDifficulty": 5.0,
+      "initialStability": 2.0
+    },
+    {
+      "id": "pl_ksiazka",
+      "rootWord": "książka",
+      "language": "pl",
+      "wordType": "Noun",
+      "grammarRequirements": "Rzeczownik żeński (-a), Biernik: książkę",
+      "skillType": "gender",
+      "initialDifficulty": 4.0,
+      "initialStability": 3.0
+    },
+    {
+      "id": "pl_samochod",
+      "rootWord": "samochód",
+      "language": "pl",
+      "wordType": "Noun",
+      "grammarRequirements": "Rzeczownik męskorzeczowy, Dopełniacz: samochodu",
+      "skillType": "gender",
+      "initialDifficulty": 4.5,
+      "initialStability": 3.0
+    },
+    {
+      "id": "pl_okno",
+      "rootWord": "okno",
+      "language": "pl",
+      "wordType": "Noun",
+      "grammarRequirements": "Rzeczownik nijaki (-o), Miejscownik: oknie",
+      "skillType": "gender",
+      "initialDifficulty": 4.2,
+      "initialStability": 3.0
+    }
+  ],
+  "grammarModules": [
+    {
+      "id": "mod_de_rektion",
+      "title": "Verben mit festen Präpositionen",
+      "content": "B2 Rektionslehre: Unterscheidung zwischen Akkusativ- und Dativ-Präpositionen bei Verben.",
+      "isMastered": false,
+      "language": "de"
+    },
+    {
+      "id": "mod_de_genitiv",
+      "title": "Genitiv-Präpositionen",
+      "content": "während, trotz, wegen, statt verlangen ausnahmslos den Genitiv.",
+      "isMastered": false,
+      "language": "de"
+    },
+    {
+      "id": "mod_pl_aspect",
+      "title": "Pary Aspektowe (Dokonany vs Niedokonany)",
+      "content": "Czasowniki dokonane wyrażają rezultat lub jednorazowość, niedokonane proces lub powtarzalność.",
+      "isMastered": false,
+      "language": "pl"
+    },
+    {
+      "id": "mod_pl_deklinacja",
+      "title": "Deklinacja Rzeczowników (Przypadki B2)",
+      "content": "Użycie Narzędnika po 'być' oraz Dopełniacza po czasownikach zanegowanych.",
+      "isMastered": false,
+      "language": "pl"
+    }
+  ],
+  "grammarRules": [
+    {
+      "id": "rule_de_warten",
+      "moduleId": "mod_de_rektion",
+      "targetWord": "warten auf",
+      "conditionCheck": "auf",
+      "errorMessage": "Rektionsfehler: 'warten' erfordert die Präposition 'auf' + Akkusativ."
+    },
+    {
+      "id": "rule_de_abhangen",
+      "moduleId": "mod_de_rektion",
+      "targetWord": "abhängen von",
+      "conditionCheck": "von",
+      "errorMessage": "Rektionsfehler: 'abhängen' erfordert die Präposition 'von' + Dativ."
+    },
+    {
+      "id": "rule_de_trotz",
+      "moduleId": "mod_de_genitiv",
+      "targetWord": "trotz des Regens",
+      "conditionCheck": "des",
+      "errorMessage": "Kasusfehler: 'trotz' regiert den Genitiv ('des Regens')."
+    },
+    {
+      "id": "rule_pl_zrobic",
+      "moduleId": "mod_pl_aspect",
+      "targetWord": "zrobić",
+      "conditionCheck": "zrobić",
+      "errorMessage": "Błąd Aspektu: Wymagana forma dokonana (zrobić), a nie niedokonana (robić)."
+    }
+  ]
+}
